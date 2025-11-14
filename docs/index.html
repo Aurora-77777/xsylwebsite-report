@@ -170,7 +170,7 @@
                 <input type="password" id="passwordInput" placeholder="请输入密码" autofocus>
                 <div id="errorMsg"></div>
             </div>
-            <button onclick="checkPassword()">进入报告</button>
+            <button type="button" id="submitBtn">进入报告</button>
             <p class="hint">按 Enter 键也可以登录</p>
         </div>
         
@@ -182,7 +182,19 @@
         </div>
     </div>
 
-    <script src="config.js"></script>
+    <script>
+        // 确保 config.js 加载
+        console.log('开始加载 config.js');
+    </script>
+    <script src="config.js" onerror="console.error('config.js 加载失败！')"></script>
+    <script>
+        // 验证函数是否加载
+        window.addEventListener('load', function() {
+            console.log('页面加载完成');
+            console.log('checkPassword 函数是否存在:', typeof checkPassword);
+            console.log('PASSWORD 常量是否存在:', typeof PASSWORD !== 'undefined');
+        });
+    </script>
 </body>
 </html>
 
