@@ -1,0 +1,9 @@
+# 配置文件 - 包含敏感信息（密码等）
+config.js
+generate_tab2.py
+generate_tab3.py
+
+# Excel 文件
+*.xlsx
+
+
