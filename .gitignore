@@ -2,8 +2,8 @@
 config.js
 generate_tab2.py
 generate_tab3.py
-
+docs/config.js
 # Excel 文件
 *.xlsx
 
-
+.DS_Store
