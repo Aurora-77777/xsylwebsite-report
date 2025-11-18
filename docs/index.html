@@ -183,17 +183,110 @@
     </div>
 
     <script>
-        // 确保 config.js 加载
-        console.log('开始加载 config.js');
-    </script>
-    <script src="config.js" onerror="console.error('config.js 加载失败！')"></script>
-    <script>
-        // 验证函数是否加载
-        window.addEventListener('load', function() {
-            console.log('页面加载完成');
-            console.log('checkPassword 函数是否存在:', typeof checkPassword);
-            console.log('PASSWORD 常量是否存在:', typeof PASSWORD !== 'undefined');
-        });
+        // 动态加载 config.js，确保正确加载
+        let configLoaded = false;
+        
+        function loadConfig() {
+            return new Promise((resolve, reject) => {
+                const script = document.createElement('script');
+                script.src = 'config.js';
+                script.async = false; // 确保同步加载
+                
+                script.onload = function() {
+                    configLoaded = true;
+                    console.log('config.js 加载成功');
+                    resolve();
+                };
+                
+                script.onerror = function() {
+                    console.error('config.js 加载失败');
+                    const errorMsg = document.getElementById('errorMsg');
+                    if (errorMsg) {
+                        errorMsg.textContent = '配置文件加载失败，请刷新页面重试';
+                        errorMsg.style.color = '#e74c3c';
+                    }
+                    reject(new Error('config.js 加载失败'));
+                };
+                
+                document.head.appendChild(script);
+            });
+        }
+        
+        // 初始化函数，等待 config.js 加载完成
+        async function init() {
+            try {
+                await loadConfig();
+                
+                // 等待一小段时间确保函数已定义
+                await new Promise(resolve => setTimeout(resolve, 100));
+                
+                // 检查必要的函数和变量是否存在
+                if (typeof checkPassword === 'undefined') {
+                    throw new Error('checkPassword 函数未定义');
+                }
+                if (typeof checkAuth === 'undefined') {
+                    throw new Error('checkAuth 函数未定义');
+                }
+                
+                console.log('所有函数已加载');
+                
+                // 页面加载时检查认证状态
+                if (checkAuth()) {
+                    const loginForm = document.getElementById('loginForm');
+                    const navLinks = document.getElementById('navLinks');
+                    if (loginForm) loginForm.style.display = 'none';
+                    if (navLinks) navLinks.classList.add('show');
+                }
+                
+                // 监听Enter键
+                const passwordInput = document.getElementById('passwordInput');
+                if (passwordInput) {
+                    passwordInput.addEventListener('keypress', function(e) {
+                        if (e.key === 'Enter') {
+                            e.preventDefault();
+                            if (typeof checkPassword === 'function') {
+                                checkPassword();
+                            } else {
+                                console.error('checkPassword 函数不可用');
+                            }
+                        }
+                    });
+                }
+                
+                // 确保按钮点击事件也能工作
+                const submitButton = document.getElementById('submitBtn');
+                if (submitButton) {
+                    submitButton.addEventListener('click', function(e) {
+                        e.preventDefault();
+                        if (typeof checkPassword === 'function') {
+                            checkPassword();
+                        } else {
+                            console.error('checkPassword 函数不可用');
+                            const errorMsg = document.getElementById('errorMsg');
+                            if (errorMsg) {
+                                errorMsg.textContent = '系统未初始化，请刷新页面';
+                            }
+                        }
+                    });
+                    console.log('按钮事件监听器已添加');
+                }
+                
+            } catch (error) {
+                console.error('初始化失败:', error);
+                const errorMsg = document.getElementById('errorMsg');
+                if (errorMsg) {
+                    errorMsg.textContent = '系统初始化失败，请刷新页面重试';
+                    errorMsg.style.color = '#e74c3c';
+                }
+            }
+        }
+        
+        // DOM 加载完成后初始化
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', init);
+        } else {
+            init();
+        }
     </script>
 </body>
 </html>
